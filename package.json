@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@netlify/edge-functions-bootstrap": "^2.17.1"
+  },
+  "name": "saas-dashboard-barbershop",
+  "version": "1.0.0",
+  "description": "\"# SaaS-Dashboard-Barbershop\"",
+  "main": "index.js",
+  "devDependencies": {
+    "netlify-cli": "^23.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DBAutomations/SaaS-Dashboard-Barbershop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DBAutomations/SaaS-Dashboard-Barbershop/issues"
+  },
+  "homepage": "https://github.com/DBAutomations/SaaS-Dashboard-Barbershop#readme"
+}
