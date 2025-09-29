@@ -1,24 +1,24 @@
+// api/webhook-call.js  (Vercel / Netlify style)
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-only
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET; // set a secret and use in n8n
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-exports.handler = async (event) => {
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+  const authHeader = req.headers['authorization'] || '';
+  if (!authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WEBHOOK_SECRET) {
+    return res.status(401).json({ error: 'Invalid webhook secret' });
+  }
+
   try {
-    if (event.httpMethod !== 'POST') {
-      return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
-    }
+    const payload = req.body;
 
-    const authHeader = event.headers.authorization || '';
-    if (!authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WEBHOOK_SECRET) {
-      return { statusCode: 401, body: JSON.stringify({ error: 'Invalid webhook secret' }) };
-    }
-
-    const payload = JSON.parse(event.body);
-
+    // map/validate incoming fields (make adjustments if your n8n keys differ)
     const row = {
       org_id: payload.org_id,
       phone_from: payload.phone_from,
@@ -33,15 +33,15 @@ exports.handler = async (event) => {
       metadata: payload.metadata ?? null
     };
 
-    // INSERT INTO SUPABASE
     const { data, error } = await supabase.from('calls').insert([row]).select().single();
-
     if (error) {
-      return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+      console.error('Supabase insert error', error);
+      return res.status(500).json({ error: error.message });
     }
 
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return res.status(200).json({ ok: true, id: data.id });
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Server error', detail: err.message }) };
+    console.error(err);
+    return res.status(500).send('Server error');
   }
 };
