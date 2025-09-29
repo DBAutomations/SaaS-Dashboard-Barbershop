@@ -12,6 +12,7 @@ exports.handler = async (event) => {
       return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
     }
 
+    // Authorization check
     const authHeader = event.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WEBHOOK_SECRET) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Invalid webhook secret' }) };
@@ -27,13 +28,11 @@ exports.handler = async (event) => {
       duration_seconds: payload.duration_seconds ?? 0,
       handled_by_ai: payload.handled_by_ai ?? false,
       forwarded: payload.forwarded ?? false,
-      time_to_forward_seconds: payload.time_to_forward_seconds ?? null,
       appointment_booked: payload.appointment_booked ?? false,
       transcript: payload.transcript ?? null,
       metadata: payload.metadata ?? null
     };
 
-    // INSERT INTO SUPABASE
     const { data, error } = await supabase.from('calls').insert([row]).select().single();
 
     if (error) {
