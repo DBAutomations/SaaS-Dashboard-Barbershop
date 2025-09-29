@@ -1,6 +1,9 @@
 {
   "dependencies": {
-    "@netlify/edge-functions-bootstrap": "^2.17.1"
+    "@netlify/edge-functions-bootstrap": "^2.17.1",
+    "@supabase/supabase-js": "^2.58.0",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0"
   },
   "name": "saas-dashboard-barbershop",
   "version": "1.0.0",
