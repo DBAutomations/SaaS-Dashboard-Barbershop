@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_KEY; // Must be Service Role key
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -19,6 +19,7 @@ exports.handler = async (event) => {
     }
 
     const payload = JSON.parse(event.body);
+    console.log('Received payload:', payload);
 
     const row = {
       org_id: payload.org_id,
@@ -33,14 +34,19 @@ exports.handler = async (event) => {
       metadata: payload.metadata ?? null
     };
 
+    // Attempt insert into Supabase
     const { data, error } = await supabase.from('calls').insert([row]).select().single();
+
+    console.log('Supabase insert data:', data);
+    console.log('Supabase insert error:', error);
 
     if (error) {
       return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
 
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return { statusCode: 200, body: JSON.stringify({ ok: true, insertedRow: data }) };
   } catch (err) {
+    console.error('Function error:', err);
     return { statusCode: 500, body: JSON.stringify({ error: 'Server error', detail: err.message }) };
   }
 };
