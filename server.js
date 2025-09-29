@@ -1,5 +1,8 @@
+// netlify/functions/webhook-call.js
+
 const { createClient } = require('@supabase/supabase-js');
 
+// Get Supabase credentials from environment variables
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -7,16 +10,28 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 exports.handler = async (event) => {
-  const authHeader = event.headers.authorization || '';
-  if (!authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WEBHOOK_SECRET) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ error: 'Invalid webhook secret' }),
-    };
-  }
-
   try {
+    // Only allow POST
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: 'Method Not Allowed' }),
+      };
+    }
+
+    // Check authorization header
+    const authHeader = event.headers.authorization || '';
+    if (!authHeader.startsWith('Bearer ') || authHeader.split(' ')[1] !== WEBHOOK_SECRET) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: 'Invalid webhook secret' }),
+      };
+    }
+
+    // Parse incoming JSON payload
     const payload = JSON.parse(event.body);
+
+    // Build row for Supabase insert
     const row = {
       org_id: payload.org_id,
       phone_from: payload.phone_from,
@@ -31,13 +46,24 @@ exports.handler = async (event) => {
       metadata: payload.metadata ?? null
     };
 
-    const { data, error } = await supabase.from('calls').insert([row]).select().single();
+    // Insert into Supabase
+    const { data, error } = await supabase
+      .from('calls')
+      .insert([row])
+      .select()
+      .single();
+
     if (error) {
       return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
 
-    return { statusCode: 200, body: JSON.stringify({ ok: true, id: data.id }) };
+    // Return the inserted row so n8n can see it
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Server error', detail: err.message }) };
   }
 };
+
