@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Barbershop Dashboard Design System */
+
+@layer base {
+  :root {
+    /* Base colors */
+    --background: 248 250 252;
+    --foreground: 226 232 240;
+    
+    /* Professional dashboard palette */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 75%;
+    
+    /* Warm accent for barbershop warmth */
+    --accent: 43 96% 56%;
+    --accent-foreground: 26 46% 5%;
+    --accent-glow: 43 96% 70%;
+    
+    /* Success metrics */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-glow: 142 70% 50%;
+    
+    /* Card system */
+    --card: 0 0% 100%;
+    --card-foreground: 15 23% 25%;
+    --card-border: 220 13% 91%;
+    
+    /* Muted elements */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    /* Secondary elements */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 15%;
+    
+    /* Interactive elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 15 23% 25%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Gradients for beautiful cards */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 75%));
+    --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(43 96% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 70% 50%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --gradient-background: linear-gradient(180deg, hsl(248 250 252), hsl(241 245 249));
+    
+    /* Shadows for depth */
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-card-hover: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-glow-primary: 0 0 20px hsl(217 91% 60% / 0.3);
+    --shadow-glow-accent: 0 0 20px hsl(43 96% 56% / 0.3);
+    
+    --radius: 0.75rem;
+
+  }
+
+  .dark {
+    /* Keep dark mode minimal for now - focus on light mode perfection */
+    --background: 15 23% 4%;
+    --foreground: 220 14% 96%;
+    --card: 15 23% 6%;
+    --card-foreground: 220 14% 96%;
+    --primary: 217 91% 75%;
+    --primary-foreground: 15 23% 4%;
+    --accent: 43 96% 70%;
+    --accent-foreground: 15 23% 4%;
+    --border: 15 23% 15%;
+    --input: 15 23% 15%;
+    --ring: 217 91% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-slate-50 to-slate-100 text-card-foreground min-h-screen;
+  }
+}
+
+@layer components {
+  /* Dashboard Card Variants */
+  .dashboard-card {
+    @apply bg-card border border-card-border rounded-xl shadow-card hover:shadow-card-hover transition-all duration-200;
+  }
+  
+  .dashboard-card-primary {
+    @apply bg-gradient-to-br from-blue-500 to-blue-600 text-primary-foreground border-0 shadow-lg rounded-lg;
+  }
+  
+  .dashboard-card-accent {
+    @apply bg-gradient-to-br from-yellow-400 to-yellow-500 text-accent-foreground border-0 shadow-lg rounded-lg;
+  }
+  
+  .dashboard-card-success {
+    @apply bg-gradient-to-br from-green-500 to-green-600 text-success-foreground border-0 shadow-lg rounded-lg;
+  }
+
+  /* Metric Display */
+  .metric-value {
+    @apply text-2xl font-bold tracking-tight;
+  }
+  
+  .metric-large {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  
+  .metric-label {
+    @apply text-sm text-muted-foreground font-medium;
+  }
+
+  /* Animations */
+  .fade-up {
+    @apply animate-fade-in;
+  }
+  
+  .hover-lift {
+    @apply hover:-translate-y-2 hover:scale-105 transition-all duration-300 ease-out hover:shadow-card-hover cursor-pointer;
+  }
+}
