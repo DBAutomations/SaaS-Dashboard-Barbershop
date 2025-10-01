@@ -1,8 +1,17 @@
-[build] 
-functions = "netlify/functions" 
-publish = "public" 
- 
-[[redirects]] 
-from = "/api/*" 
-to = "/.netlify/functions/:splat" 
-status = 200 
+[build]
+  base = "Lovablesite"        # run build commands inside the Lovablesite folder
+  publish = "dist"            # Vite outputs production files to dist/
+  functions = "netlify/functions"
+  command = "npm run build"   # build your Vite React app
+
+# Redirect all client-side routes to index.html so React routing works
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Keep your serverless function API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
