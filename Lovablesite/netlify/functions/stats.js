@@ -1,15 +1,26 @@
 // netlify/functions/stats.js
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-only
 const DEFAULT_ORG_ID = process.env.DEFAULT_ORG_ID || null;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 exports.handler = async (event) => {
   try {
-    // Read query params
+    // --- 🔹 Check environment variables ---
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      console.error("Supabase environment variables missing!");
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Supabase env missing" }),
+      };
+    }
+
+    // --- 🔹 Initialize Supabase client inside the handler ---
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- 🔹 Read query params ---
     const params = event.queryStringParameters || {};
     const orgId = params.orgId || DEFAULT_ORG_ID;
     const rangeDays = parseInt(params.rangeDays || '30', 10);
@@ -20,7 +31,7 @@ exports.handler = async (event) => {
 
     const sinceDate = new Date(Date.now() - rangeDays * 24 * 60 * 60 * 1000).toISOString();
 
-    // Fetch calls within range
+    // --- 🔹 Fetch calls within range ---
     const { data: calls, error: callsErr } = await supabase
       .from('calls')
       .select('*')
@@ -31,7 +42,7 @@ exports.handler = async (event) => {
       return { statusCode: 500, body: JSON.stringify({ error: callsErr.message }) };
     }
 
-    // Compute aggregates (server-side)
+    // --- 🔹 Compute aggregates ---
     let total_calls = calls.length;
     let time_saved_seconds = 0;
     let appointments_booked = 0;
@@ -51,7 +62,7 @@ exports.handler = async (event) => {
 
     const hours_saved = time_saved_seconds / 3600;
 
-    // Read org rate for cost estimate (optional)
+    // --- 🔹 Read org rate for cost estimate ---
     let receptionist_hourly_rate = 0;
     const { data: orgRow, error: orgErr } = await supabase
       .from('orgs')
@@ -62,6 +73,7 @@ exports.handler = async (event) => {
     if (!orgErr && orgRow) receptionist_hourly_rate = parseFloat(orgRow.receptionist_hourly_rate || 0);
     const cost_savings = +(hours_saved * receptionist_hourly_rate).toFixed(2);
 
+    // --- 🔹 Return response ---
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -76,7 +88,9 @@ exports.handler = async (event) => {
         rangeDays
       }),
     };
+
   } catch (err) {
+    console.error("Error in stats function:", err);
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
