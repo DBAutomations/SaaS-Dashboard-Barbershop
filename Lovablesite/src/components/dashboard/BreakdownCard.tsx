@@ -1,12 +1,17 @@
 import { Bot, Users, CheckCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import type { CallRecord } from "@/types/call";
 
-export function BreakdownCard() {
-  const aiHandled = 234;
-  const forwarded = 108;
+type BreakdownCardProps = {
+  calls: CallRecord[];
+};
+
+export function BreakdownCard({ calls }: BreakdownCardProps) {
+  const aiHandled = calls.filter(c => c.handled_by_ai).length;
+  const forwarded = calls.filter(c => !c.handled_by_ai && c.forwarded).length;
   const total = aiHandled + forwarded;
-  const successRate = Math.round((aiHandled / total) * 100);
+  const successRate = total ? Math.round((aiHandled / total) * 100) : 0;
 
   return (
     <motion.div
@@ -19,11 +24,12 @@ export function BreakdownCard() {
         <div className="p-2 rounded-lg bg-success/10">
           <CheckCircle className="h-5 w-5 text-success" />
         </div>
-        <h3 className="text-lg font-semibold text-card-foreground">Call Handling Breakdown</h3>
+        <h3 className="text-lg font-semibold text-card-foreground">
+          Call Handling Breakdown
+        </h3>
       </div>
-      
+
       <div className="space-y-6">
-        {/* Success Rate */}
         <div className="text-center p-4 bg-success/5 rounded-lg">
           <div className="metric-large text-success">{successRate}%</div>
           <div className="metric-label">Success Rate</div>
@@ -31,8 +37,7 @@ export function BreakdownCard() {
             Calls fully handled by AI
           </div>
         </div>
-        
-        {/* Progress Bar */}
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">AI vs Staff Handling</span>
@@ -40,8 +45,7 @@ export function BreakdownCard() {
           </div>
           <Progress value={successRate} className="h-2" />
         </div>
-        
-        {/* Breakdown */}
+
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
             <div className="flex items-center gap-3">
@@ -56,7 +60,7 @@ export function BreakdownCard() {
               <div className="text-xs text-muted-foreground">calls</div>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-3">
               <Users className="h-5 w-5 text-muted-foreground" />
@@ -71,7 +75,7 @@ export function BreakdownCard() {
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <ArrowRight className="h-3 w-3" />
           <span>Complex bookings and complaints are automatically forwarded to staff</span>

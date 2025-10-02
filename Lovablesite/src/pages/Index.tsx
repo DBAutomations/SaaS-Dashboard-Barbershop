@@ -1,5 +1,6 @@
-import StatsCard from "../components/StatsCard";
 import Dashboard from "./Dashboard";
+import StatsCard from "../components/StatsCard";
+
 
 const Index = () => {
   return (
