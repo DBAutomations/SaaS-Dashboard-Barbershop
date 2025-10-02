@@ -7,7 +7,7 @@ exports.handler = async (event) => {
   try {
     // --- 🔹 Check environment variables ---
     const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const SUPABASE_KEY = process.env.SUPABASE_KEY; // <-- use correct env var name
 
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       console.error("Supabase environment variables missing!");
