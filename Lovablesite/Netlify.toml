@@ -1,0 +1,13 @@
+# netlify.toml
+[build]
+  command = "npm run build"
+  publish = "out" # or ".next", depending on your setup
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/**"]
+
+[dev]
+  functionsPort = 8888
+  port = 3000
