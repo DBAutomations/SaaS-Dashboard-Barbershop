@@ -33,18 +33,10 @@ export default function StatsCard({ orgId }: { orgId: string }) {
     if (orgId) load();
   }, [orgId]);
 
+  // Optional: show loading if you want
   if (loading) return <div>Loading stats…</div>;
   if (!stats) return <div>No stats available</div>;
 
-  return (
-    <div className="p-4 rounded-xl shadow bg-white">
-      <h2 className="text-lg font-bold">AI Receptionist Dashboard</h2>
-      <p>Total calls: {stats.total_calls}</p>
-      <p>Time saved: {(stats.time_saved_seconds / 60).toFixed(1)} minutes</p>
-      <p>Appointments booked: {stats.appointments_booked}</p>
-      <p>Handled by AI: {stats.ai_handled_count}</p>
-      <p>Forwarded: {stats.forwarded_count}</p>
-      <p>Estimated savings: €{stats.cost_savings}</p>
-    </div>
-  );
+  // Remove the raw display div completely
+  return null; // Stats are now just stored in state; UI handled elsewhere
 }

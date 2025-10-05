@@ -71,7 +71,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <MissedCallsCard calls={[]} />
           <BreakdownCard calls={[]} />
-          <CostSavingsCard hoursSaved={hours_saved} hourlyRate={receptionist_hourly_rate || 18} />
+          <CostSavingsCard hoursSaved={Number(hours_saved.toFixed(2))} hourlyRate={receptionist_hourly_rate || 18} />
         </div>
       </div>
     </div>
