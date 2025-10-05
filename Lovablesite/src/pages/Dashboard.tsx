@@ -5,10 +5,21 @@ import { CallsChart } from "@/components/dashboard/CallsChart";
 import { MissedCallsCard } from "@/components/dashboard/MissedCallsCard";
 import { BreakdownCard } from "@/components/dashboard/BreakdownCard";
 import { CostSavingsCard } from "@/components/dashboard/CostSavingsCard";
-import type { CallRecord } from "@/types/call";
+
+type Stats = {
+  total_calls: number;
+  time_saved_seconds: number;
+  hours_saved: number;
+  appointments_booked: number;
+  ai_handled_count: number;
+  forwarded_count: number;
+  receptionist_hourly_rate: number;
+  cost_savings: number;
+  rangeDays: number;
+};
 
 export default function Dashboard() {
-  const [calls, setCalls] = useState<CallRecord[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,10 +28,10 @@ export default function Dashboard() {
         const res = await fetch(
           "/.netlify/functions/stats?orgId=7fe8df40-eb8c-4803-8955-67c0700c49bb"
         );
-        const data: CallRecord[] = await res.json();
-        setCalls(data);
+        const data: Stats = await res.json();
+        setStats(data);
       } catch (err) {
-        console.error("Failed to load calls", err);
+        console.error("Failed to load stats", err);
       } finally {
         setLoading(false);
       }
@@ -28,15 +39,18 @@ export default function Dashboard() {
     load();
   }, []);
 
-  if (loading) return <div>Loading dashboard...</div>;
+  if (loading || !stats) return <div>Loading dashboard...</div>;
 
-  // --- Metrics ---
-  const totalCalls = calls.length;
-  const totalDuration = calls.reduce((acc, c) => acc + c.duration_seconds, 0);
-  const hoursSaved = totalDuration / 3600;
-  const aiHandled = calls.filter(c => c.handled_by_ai).length;
-  const forwarded = calls.filter(c => c.forwarded).length;
-  const appointments = calls.filter(c => c.appointment_booked).length;
+  // --- Use aggregated stats ---
+  const {
+    total_calls,
+    ai_handled_count,
+    forwarded_count,
+    appointments_booked,
+    hours_saved,
+    receptionist_hourly_rate,
+    cost_savings,
+  } = stats;
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
@@ -44,20 +58,20 @@ export default function Dashboard() {
         <DashboardHeader />
 
         <SummaryCards
-          totalCalls={totalCalls}
-          aiHandled={aiHandled}
-          forwarded={forwarded}
-          appointments={appointments}
-          successRate={Math.round((aiHandled / totalCalls) * 100)}
+          totalCalls={total_calls}
+          aiHandled={ai_handled_count}
+          forwarded={forwarded_count}
+          appointments={appointments_booked}
+          successRate={Math.round((ai_handled_count / total_calls) * 100)}
         />
 
-        {/* CallsChart is now properly typed */}
-        <CallsChart calls={calls} />
+        {/* CallsChart now receives empty array because we no longer fetch individual calls */}
+        <CallsChart calls={[]} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <MissedCallsCard calls={calls} />
-          <BreakdownCard calls={calls} />
-          <CostSavingsCard hoursSaved={hoursSaved} hourlyRate={18} />
+          <MissedCallsCard calls={[]} />
+          <BreakdownCard calls={[]} />
+          <CostSavingsCard hoursSaved={hours_saved} hourlyRate={receptionist_hourly_rate || 18} />
         </div>
       </div>
     </div>
